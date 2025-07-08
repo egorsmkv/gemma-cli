@@ -1,0 +1,222 @@
+{
+  "type": "object",
+  "properties": {
+    "overall_assessment": {
+      "type": "object",
+      "properties": {
+        "quality_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 10,
+          "description": "Overall code quality score from 0-10"
+        },
+        "maintainability": {
+          "type": "string",
+          "enum": ["excellent", "good", "fair", "poor"],
+          "description": "Code maintainability rating"
+        },
+        "complexity": {
+          "type": "string",
+          "enum": ["low", "medium", "high", "very_high"],
+          "description": "Code complexity assessment"
+        }
+      },
+      "required": ["quality_score", "maintainability", "complexity"]
+    },
+    "code_issues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["bug", "security", "performance", "style", "documentation", "logic"],
+            "description": "Type of issue identified"
+          },
+          "severity": {
+            "type": "string",
+            "enum": ["critical", "high", "medium", "low"],
+            "description": "Issue severity level"
+          },
+          "description": {
+            "type": "string",
+            "description": "Detailed description of the issue"
+          },
+          "location": {
+            "type": "string",
+            "description": "Code location where issue was found"
+          },
+          "suggestion": {
+            "type": "string",
+            "description": "Recommended fix or improvement"
+          }
+        },
+        "required": ["type", "severity", "description", "suggestion"]
+      },
+      "description": "List of identified code issues"
+    },
+    "best_practices": {
+      "type": "object",
+      "properties": {
+        "followed": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Best practices that are being followed"
+        },
+        "missing": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Best practices that should be implemented"
+        }
+      },
+      "required": ["followed", "missing"]
+    },
+    "architecture": {
+      "type": "object",
+      "properties": {
+        "patterns_used": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Architectural patterns identified in the code"
+        },
+        "structure_assessment": {
+          "type": "string",
+          "description": "Assessment of the overall code structure"
+        },
+        "scalability": {
+          "type": "string",
+          "enum": ["excellent", "good", "fair", "poor"],
+          "description": "Code scalability rating"
+        }
+      },
+      "required": ["patterns_used", "structure_assessment", "scalability"]
+    },
+    "testing": {
+      "type": "object",
+      "properties": {
+        "coverage_estimate": {
+          "type": "string",
+          "description": "Estimated test coverage assessment"
+        },
+        "testing_practices": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Testing practices observed"
+        },
+        "recommendations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Testing recommendations"
+        }
+      },
+      "required": ["coverage_estimate", "testing_practices", "recommendations"]
+    },
+    "performance": {
+      "type": "object",
+      "properties": {
+        "potential_bottlenecks": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Potential performance bottlenecks identified"
+        },
+        "optimization_opportunities": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Opportunities for performance optimization"
+        }
+      },
+      "required": ["potential_bottlenecks", "optimization_opportunities"]
+    },
+    "security": {
+      "type": "object",
+      "properties": {
+        "vulnerabilities": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "description": "Type of security vulnerability"
+              },
+              "risk_level": {
+                "type": "string",
+                "enum": ["critical", "high", "medium", "low"],
+                "description": "Risk level of the vulnerability"
+              },
+              "description": {
+                "type": "string",
+                "description": "Description of the vulnerability"
+              },
+              "mitigation": {
+                "type": "string",
+                "description": "Recommended mitigation strategy"
+              }
+            },
+            "required": ["type", "risk_level", "description", "mitigation"]
+          },
+          "description": "Security vulnerabilities found"
+        },
+        "secure_practices": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Secure coding practices observed"
+        }
+      },
+      "required": ["vulnerabilities", "secure_practices"]
+    },
+    "recommendations": {
+      "type": "object",
+      "properties": {
+        "immediate_actions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Actions that should be taken immediately"
+        },
+        "short_term_improvements": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Improvements to implement in the short term"
+        },
+        "long_term_goals": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Long-term architectural or design goals"
+        }
+      },
+      "required": ["immediate_actions", "short_term_improvements", "long_term_goals"]
+    }
+  },
+  "required": [
+    "overall_assessment",
+    "code_issues",
+    "best_practices",
+    "architecture",
+    "testing",
+    "performance",
+    "security",
+    "recommendations"
+  ]
+}

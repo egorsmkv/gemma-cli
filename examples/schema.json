@@ -1,0 +1,73 @@
+{
+  "type": "object",
+  "properties": {
+    "summary": {
+      "type": "string",
+      "description": "Brief summary of the analyzed content"
+    },
+    "main_topics": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of main topics or themes identified"
+    },
+    "entities": {
+      "type": "object",
+      "properties": {
+        "people": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Names of people mentioned"
+        },
+        "organizations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Names of organizations mentioned"
+        },
+        "locations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Names of locations mentioned"
+        }
+      },
+      "required": ["people", "organizations", "locations"]
+    },
+    "key_facts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "fact": {
+            "type": "string",
+            "description": "The key fact or data point"
+          },
+          "value": {
+            "type": "string",
+            "description": "Associated value or metric if applicable"
+          }
+        },
+        "required": ["fact"]
+      },
+      "description": "Important facts or data points extracted"
+    },
+    "sentiment": {
+      "type": "string",
+      "enum": ["positive", "negative", "neutral"],
+      "description": "Overall sentiment or tone of the content"
+    },
+    "confidence_score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Confidence score for the analysis (0-1)"
+    }
+  },
+  "required": ["summary", "main_topics", "entities", "key_facts", "sentiment", "confidence_score"]
+}
