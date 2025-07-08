@@ -4,13 +4,13 @@ A command-line interface for interacting with Google's Gemini AI models. This to
 
 ## Features
 
-- 🤖 Integration with Google Gemini AI models
-- 📝 Custom prompt support from files
-- 🔧 Configurable JSON response schemas
-- 📊 Structured JSON output with custom formatting
-- 🎯 Default schema for simple use cases
-- 📁 File-based input and output support
-- 🖥️ Stdout output option
+- Integration with Google Gemini AI models
+- Custom prompt support from files
+- Configurable JSON response schemas
+- Structured JSON output with custom formatting
+- Default schema for simple use cases
+- File-based input and output support
+- Stdout output option
 
 ## Prerequisites
 
