@@ -17,12 +17,13 @@ import (
 var DefaultSchema = map[string]interface{}{
 	"type": "object",
 	"properties": map[string]interface{}{
-		"message": map[string]interface{}{
-			"type":        "string",
-			"description": "Response message from Gemini",
+		"urls": map[string]interface{}{
+			"type":        "array",
+			"items":       map[string]interface{}{"type": "string"},
+			"description": "Array of job URLs extracted from the content",
 		},
 	},
-	"required": []string{"message"},
+	"required": []string{"urls"},
 }
 
 // Config holds the application configuration
@@ -62,6 +63,7 @@ func main() {
 	}
 
 	// Get API key from environment
+	env.LoadFromFile(".env")
 	apiKey := env.GetAsString("GEMINI_API_KEY")
 	if apiKey == "" {
 		fmt.Fprintf(os.Stderr, "Error: GEMINI_API_KEY environment variable is required\n")
@@ -124,16 +126,13 @@ func run(config Config) error {
 	// Configure the model for JSON output
 	model.ResponseMIMEType = "application/json"
 
-	// Set the response schema
-	schemaBytes, err := json.Marshal(schema)
+	// Set the response schema by converting the JSON schema to genai.Schema
+	genaiSchema, err := convertJSONSchemaToGenaiSchema(schema)
 	if err != nil {
-		return fmt.Errorf("failed to marshal schema: %w", err)
+		return fmt.Errorf("failed to convert schema: %w", err)
 	}
 
-	model.ResponseSchema = &genai.Schema{}
-	if err := json.Unmarshal(schemaBytes, model.ResponseSchema); err != nil {
-		return fmt.Errorf("failed to set response schema: %w", err)
-	}
+	model.ResponseSchema = genaiSchema
 
 	// Create the full prompt
 	fullPrompt := fmt.Sprintf("%s\n\nInput:\n%s", string(promptContent), string(inputContent))
@@ -178,4 +177,84 @@ func run(config Config) error {
 	}
 
 	return nil
+}
+
+// convertJSONSchemaToGenaiSchema converts a JSON schema map to a genai.Schema
+func convertJSONSchemaToGenaiSchema(jsonSchema map[string]interface{}) (*genai.Schema, error) {
+	schema := &genai.Schema{}
+
+	// Set type
+	if typeStr, ok := jsonSchema["type"].(string); ok {
+		switch typeStr {
+		case "object":
+			schema.Type = genai.TypeObject
+		case "array":
+			schema.Type = genai.TypeArray
+		case "string":
+			schema.Type = genai.TypeString
+		case "number":
+			schema.Type = genai.TypeNumber
+		case "integer":
+			schema.Type = genai.TypeInteger
+		case "boolean":
+			schema.Type = genai.TypeBoolean
+		default:
+			return nil, fmt.Errorf("unsupported type: %s", typeStr)
+		}
+	}
+
+	// Set description
+	if desc, ok := jsonSchema["description"].(string); ok {
+		schema.Description = desc
+	}
+
+	// Set properties for object type
+	if props, ok := jsonSchema["properties"].(map[string]interface{}); ok {
+		schema.Properties = make(map[string]*genai.Schema)
+		for key, prop := range props {
+			if propMap, ok := prop.(map[string]interface{}); ok {
+				propSchema, err := convertJSONSchemaToGenaiSchema(propMap)
+				if err != nil {
+					return nil, fmt.Errorf("failed to convert property %s: %w", key, err)
+				}
+				schema.Properties[key] = propSchema
+			}
+		}
+	}
+
+	// Set items for array type
+	if items, ok := jsonSchema["items"].(map[string]interface{}); ok {
+		itemSchema, err := convertJSONSchemaToGenaiSchema(items)
+		if err != nil {
+			return nil, fmt.Errorf("failed to convert items schema: %w", err)
+		}
+		schema.Items = itemSchema
+	}
+
+	// Set required fields
+	if required, ok := jsonSchema["required"].([]interface{}); ok {
+		schema.Required = make([]string, len(required))
+		for i, req := range required {
+			if reqStr, ok := req.(string); ok {
+				schema.Required[i] = reqStr
+			}
+		}
+	}
+
+	// Set enum values
+	if enum, ok := jsonSchema["enum"].([]interface{}); ok {
+		schema.Enum = make([]string, len(enum))
+		for i, e := range enum {
+			if eStr, ok := e.(string); ok {
+				schema.Enum[i] = eStr
+			}
+		}
+	}
+
+	// Set format
+	if format, ok := jsonSchema["format"].(string); ok {
+		schema.Format = format
+	}
+
+	return schema, nil
 }
