@@ -8,18 +8,18 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/17twenty/gemma-cli/env"
+	"github.com/egorsmkv/gemma-cli/env"
 	"github.com/google/generative-ai-go/genai"
 	"google.golang.org/api/option"
 )
 
 // DefaultSchema represents the default JSON schema when none is provided
-var DefaultSchema = map[string]interface{}{
+var DefaultSchema = map[string]any{
 	"type": "object",
-	"properties": map[string]interface{}{
-		"urls": map[string]interface{}{
+	"properties": map[string]any{
+		"urls": map[string]any{
 			"type":        "array",
-			"items":       map[string]interface{}{"type": "string"},
+			"items":       map[string]any{"type": "string"},
 			"description": "Array of job URLs extracted from the content",
 		},
 	},
@@ -99,7 +99,7 @@ func run(config Config) error {
 	}
 
 	// Load schema
-	var schema map[string]interface{}
+	var schema map[string]any
 	if config.SchemaFile != "" {
 		schemaContent, err := os.ReadFile(config.SchemaFile)
 		if err != nil {
@@ -156,7 +156,7 @@ func run(config Config) error {
 	}
 
 	// Parse and format the JSON response
-	var jsonResponse interface{}
+	var jsonResponse any
 	if err := json.Unmarshal([]byte(responseText), &jsonResponse); err != nil {
 		return fmt.Errorf("failed to parse response as JSON: %w", err)
 	}
@@ -180,7 +180,7 @@ func run(config Config) error {
 }
 
 // convertJSONSchemaToGenaiSchema converts a JSON schema map to a genai.Schema
-func convertJSONSchemaToGenaiSchema(jsonSchema map[string]interface{}) (*genai.Schema, error) {
+func convertJSONSchemaToGenaiSchema(jsonSchema map[string]any) (*genai.Schema, error) {
 	schema := &genai.Schema{}
 
 	// Set type
@@ -209,10 +209,10 @@ func convertJSONSchemaToGenaiSchema(jsonSchema map[string]interface{}) (*genai.S
 	}
 
 	// Set properties for object type
-	if props, ok := jsonSchema["properties"].(map[string]interface{}); ok {
+	if props, ok := jsonSchema["properties"].(map[string]any); ok {
 		schema.Properties = make(map[string]*genai.Schema)
 		for key, prop := range props {
-			if propMap, ok := prop.(map[string]interface{}); ok {
+			if propMap, ok := prop.(map[string]any); ok {
 				propSchema, err := convertJSONSchemaToGenaiSchema(propMap)
 				if err != nil {
 					return nil, fmt.Errorf("failed to convert property %s: %w", key, err)
@@ -223,7 +223,7 @@ func convertJSONSchemaToGenaiSchema(jsonSchema map[string]interface{}) (*genai.S
 	}
 
 	// Set items for array type
-	if items, ok := jsonSchema["items"].(map[string]interface{}); ok {
+	if items, ok := jsonSchema["items"].(map[string]any); ok {
 		itemSchema, err := convertJSONSchemaToGenaiSchema(items)
 		if err != nil {
 			return nil, fmt.Errorf("failed to convert items schema: %w", err)
@@ -232,7 +232,7 @@ func convertJSONSchemaToGenaiSchema(jsonSchema map[string]interface{}) (*genai.S
 	}
 
 	// Set required fields
-	if required, ok := jsonSchema["required"].([]interface{}); ok {
+	if required, ok := jsonSchema["required"].([]any); ok {
 		schema.Required = make([]string, len(required))
 		for i, req := range required {
 			if reqStr, ok := req.(string); ok {
@@ -242,7 +242,7 @@ func convertJSONSchemaToGenaiSchema(jsonSchema map[string]interface{}) (*genai.S
 	}
 
 	// Set enum values
-	if enum, ok := jsonSchema["enum"].([]interface{}); ok {
+	if enum, ok := jsonSchema["enum"].([]any); ok {
 		schema.Enum = make([]string, len(enum))
 		for i, e := range enum {
 			if eStr, ok := e.(string); ok {
